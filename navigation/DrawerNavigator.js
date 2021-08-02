@@ -1,16 +1,18 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import Profile from '../screens/Profile';
-import TabNavigator from './TabNavigator';
+import StackNavigator from './StackNavigator';
+import Logout from '../screens/Logout';
 
 const Drawer = createDrawerNavigator()
-const DrawerNvigator = () => {
+const DrawerNavigator = () => {
     return(
         <Drawer.Navigator>
-            <Drawer.Screen name='Home' component={TabNavigator} />
+            <Drawer.Screen name='Home' component={StackNavigator} />
             <Drawer.Screen name='Profile' component={Profile} />
+            <Drawer.Screen name="Logout" component={Logout} />
         </Drawer.Navigator>
     )
 }
 
-export default DrawerNvigator
+export default DrawerNavigator
