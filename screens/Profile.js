@@ -45,8 +45,8 @@ export default class Profile extends React.Component{
         let theme, name, image;
         await firebase.database().ref('/user/'+firebase.auth().currentUser.uid).on("value", function (snapshot){
             theme = snapshot.val().current_theme;
-            name = `${snapshot.val().first_name} ${snapshot.val().last_name}`
-            image = snapshot.val().profile_picture
+            name = `${snapshot.val().first_name} ${snapshot.val().last_name}`;
+            image = snapshot.val().profile_picture;
         })
         this.setState({
             light_theme: theme === 'light' ? true : false,
@@ -61,25 +61,25 @@ export default class Profile extends React.Component{
             return <AppLoading />
         }else{
             return(
-                <View style={styles.container}>
+                <View style={this.state.light_theme ? styles.containerLight : styles.container}>
                     <SafeAreaView style={styles.droidSafeArea} />
                     <View style={styles.appTitle}>
                         <View style={styles.appIcon}>
                             <Image source={require('../assets/logo.png')} style={styles.iconImage} />
                         </View>
                         <View style={styles.appTitlTxtCon}>
-                            <Text style={styles.appTitlTxt}>Spectagram</Text>
+                            <Text style={this.state.light_theme ? styles.appTitlTxtLight : styles.appTitlTxt}>Spectagram</Text>
                         </View>
                     </View>
                     <View style={styles.screenContainer}>
                         <View style={styles.profileImgCon}>
                             <Image source={{uri: this.state.profile_image}} style={styles.profile_image}/>
                             <View style={styles.nameCon}>
-                                <Text style={styles.nameTxt}>{this.state.name}</Text>
+                                <Text style={this.state.light_theme ? styles.nameTxtLight : styles.nameTxt}>{this.state.name}</Text>
                             </View>
                             <View stylee={styles.themeCon}>
                                 <View style={styles.themeTxtCon}>
-                                    <Text style={styles.themeTxt}>Dark Theme</Text>
+                                    <Text style={this.state.themeTxt ? styles.themeTxtLight : styles.themeTxt}>Dark Theme</Text>
                                 </View>
                                 <Switch
                                 style={{
@@ -101,8 +101,13 @@ export default class Profile extends React.Component{
 }
 
 const styles = StyleSheet.create({
+    containerLight:{
+        flex: 1,
+        backgroundColor: '#fff'
+    },
     container:{
-        flex:1
+        flex:1,
+        backgroundColor: '#000'
     },
     droidSafeArea:{
         marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : RFValue(40)
@@ -128,6 +133,11 @@ const styles = StyleSheet.create({
         flex: 0.8,
         justifyContent: 'center',
     },
+    appTitlTxtLight:{
+        color: '#000',
+        fontSize: RFValue(30),
+        fontFamily: 'Bubblegum-Sans'
+    },  
     appTitlTxt: {
         color: '#fff',
         fontSize: RFValue(30),
@@ -146,8 +156,11 @@ const styles = StyleSheet.create({
         height: RFValue(140),
         borderRadius: RFValue(70)
     },
-    nameCon:{
-
+    nameTxtLight:{
+        color: '#000',
+        fontSize: RFValue(40),
+        fontFamily: 'Bubblegum-Sans',
+        marginTop: RFValue(10)
     },
     nameTxt:{
         color: '#fff',
@@ -161,8 +174,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginTop: RFValue(20)
     },
-    themeTxtCon:{
-
+    themeTxtLight:{
+        color: '#000',
+        fontFamily: 'Bubblegum-Sans',
+        fontSize: RFValue(30),
+        marginRight: RFValue(15)
     },
     themeTxt:{
         color: '#fff',

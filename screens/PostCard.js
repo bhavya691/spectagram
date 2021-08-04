@@ -4,16 +4,17 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { RFValue } from 'react-native-responsive-fontsize';
 import * as Font from 'expo-font';
 import AppLoading from 'expo-app-loading';
-
+import firebase from 'firebase';
 let customFonts = {
   'Bubblegum-Sans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
 };
 
-export default class PostCard extends React.Component {
+export default class PostCard extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
       FontsLoaded: false,
+      light_theme: true
     };
   }
 
@@ -24,8 +25,19 @@ export default class PostCard extends React.Component {
     });
   }
 
+  async fetchUser(){
+    let theme;
+    await firebase.database().ref("/user/"+firebase.auth().currentUser.uid).on("value", function(snapshot){
+      theme = snapshot.val().current_theme;
+      this.setState({
+        light_theme: theme === "light"
+      })
+    })
+  }
+
   componentDidMount() {
     this._loadFontAsync();
+    this.fetchUser();
   }
 
   render() {
@@ -40,7 +52,7 @@ export default class PostCard extends React.Component {
                 post: this.props.post,
               })
             }>
-            <View style={styles.cardCon}>
+            <View style={this.state.light_theme ? styles.cardConLight : styles.cardCon}>
               <View styles={styles.authorCon}>
                 <View style={styles.authorImgCon}>
                   <Image
@@ -49,7 +61,7 @@ export default class PostCard extends React.Component {
                   />
                 </View>
                 <View styles={styles.authorNameCon}>
-                  <Text style={styles.authorName}>
+                  <Text style={this.state.light_theme ? styles.authorNameLight : styles.authorName}>
                     {this.props.post.author}
                   </Text>
                 </View>
@@ -59,12 +71,12 @@ export default class PostCard extends React.Component {
                 style={styles.previewImg}
               />
               <View style={styles.captionCon}>
-                <Text style={styles.captionTxt}>{this.props.post.caption}</Text>
+                <Text style={this.state.light_theme ? styles.captionTxtLight : styles.captionTxt}>{this.props.post.caption}</Text>
               </View>
               <View styles={styles.actionCon}>
-                <View style={styles.likeBtn}>
+                <View style={this.state.light_theme ? styles.likeBtnLight : styles.likeBtn}>
                   <Ionicons name={'heart'} size={RFValue(30)} color={'#fff'} />
-                  <Text style={styles.likeTxt}>12k</Text>
+                  <Text style={this.state.light_theme ? styles.likeTxtLight : styles.likeTxt}>12k</Text>
                 </View>
               </View>
             </View>
@@ -78,6 +90,11 @@ export default class PostCard extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  cardConLight:{
+    margin: RFValue(15),
+    borderRadius: RFValue(20),
+    backgroundColor: '#f0f0f0',
   },
   cardCon: {
     margin: RFValue(15),
@@ -109,6 +126,14 @@ const styles = StyleSheet.create({
     paddingLeft: RFValue(20),
     justifyContent: 'center',
   },
+  authorNameLight:{
+    fontSize: RFValue(25),
+    fontFamily: 'Bubblegum-Sans',
+    color: '#000',
+    position: 'absolute',
+    bottom: RFValue(20),
+    left: RFValue(80),
+  },
   authorName: {
     fontSize: RFValue(25),
     fontFamily: 'Bubblegum-Sans',
@@ -121,6 +146,11 @@ const styles = StyleSheet.create({
     paddingLeft: RFValue(20),
     justifyContent: 'center',
   },
+  captionTxtLight:{
+    fontSize: RFValue(13),
+    color: '#000',
+    fontFamily: 'Bubbleegum-Sans',
+  },
   captionTxt: {
     fontSize: RFValue(13),
     color: '#fff',
@@ -130,6 +160,18 @@ const styles = StyleSheet.create({
     paddingTop: RFValue(10),
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  likeBtnLight: {
+    width: RFValue(160),
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    backgroundColor: '#EB3948',
+    borderRadius: RFValue(35),
+    alignSelf: 'center',
+    marginVertical: RFValue(10),
+    shadowColor: '#000',
   },
   likeBtn: {
     width: RFValue(160),
@@ -142,6 +184,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginVertical: RFValue(10),
     shadowColor: '#fff',
+  },
+  likeTxtLight: {
+    fontSize: RFValue(20),
+    color: '#000',
+    marginLeft: RFValue(5),
+    fontFamily: 'Bubblegum-Sans'
   },
   likeTxt: {
     fontSize: RFValue(20),

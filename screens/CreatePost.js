@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import DropDownPicker from 'react-native-dropdown-picker';
+import firebase from 'firebase';
 
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
@@ -28,6 +29,7 @@ export default class CreatePost extends Component {
       fontsLoaded: false,
       previewImage: 'image_7',
       dropdownHeight: 40,
+      light_theme: true
     };
   }
 
@@ -36,8 +38,19 @@ export default class CreatePost extends Component {
     this.setState({ fontsLoaded: true });
   }
 
+  async fetchUser(){
+    let theme;
+    await firebase.database().ref('/user/' + firebase.auth().currentUser.uid).on("vlaue", function (snapshot){
+      theme = snapshot.val().current_theme
+      this.setState({
+        light_theme: theme === "light"
+      })
+    })
+  }
+
   componentDidMount() {
     this._loadFontsAsync();
+    this.fetchUser();
   }
 
   render() {
@@ -54,7 +67,7 @@ export default class CreatePost extends Component {
         image_7: require('../assets/image_7.jpg'),      
       };
       return (
-        <View style={styles.container}>
+        <View style={this.state.light_theme ? styles.containerLight : styles.container}>
           <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
@@ -63,7 +76,7 @@ export default class CreatePost extends Component {
                 style={styles.iconImage}></Image>
             </View>
             <View style={styles.appTitleTextContainer}>
-              <Text style={styles.appTitleText}>New Post</Text>
+              <Text style={this.state.light_theme ? styles.appTitleTextLight : styles.appTitleText}>New Post</Text>
             </View>
           </View>
           <View style={styles.fieldsContainer}>
@@ -99,14 +112,8 @@ export default class CreatePost extends Component {
                     justifyContent: 'flex-start',
                   }}
                   dropDownStyle={{ backgroundColor: '#2f345d' }}
-                  labelStyle={{
-                    color: 'white',
-                    fontFamily: 'Bubblegum-Sans',
-                  }}
-                  arrowStyle={{
-                    color: 'white',
-                    fontFamily: 'Bubblegum-Sans',
-                  }}
+                  labelStyle={this.state.light_theme ? styles.labelAndArrowLight : styles.labelAndArrow}
+                  arrowStyle={this.state.light_theme ? styles.labelAndArrowLight : styles.labelAndArrow}
                   onChangeItem={(item) =>
                     this.setState({
                       previewImage: item.value,
@@ -116,10 +123,10 @@ export default class CreatePost extends Component {
               </View>
 
               <TextInput
-                style={styles.inputFont}
+                style={this.state.light_theme ? styles.inputFontLight : styles.inputFont}
                 onChangeText={(caption) => this.setState({ caption })}
                 placeholder={'Caption'}
-                placeholderTextColor="white"
+                placeholderTextColor={this.state.light_theme ? "#000" : "#fff"}
               />
             </ScrollView>
           </View>
@@ -131,6 +138,10 @@ export default class CreatePost extends Component {
 }
 
 const styles = StyleSheet.create({
+  containerLight:{
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   container: {
     flex: 1,
     backgroundColor: '#15193c',
@@ -157,8 +168,13 @@ const styles = StyleSheet.create({
     flex: 0.7,
     justifyContent: 'center',
   },
+  appTitleTextLight: {
+    color: '#000',
+    fontSize: RFValue(28),
+    fontFamily: 'Bubblegum-Sans',
+  },
   appTitleText: {
-    color: 'white',
+    color: '#fff',
     fontSize: RFValue(28),
     fontFamily: 'Bubblegum-Sans',
   },
@@ -173,13 +189,30 @@ const styles = StyleSheet.create({
     marginVertical: RFValue(10),
     resizeMode: 'contain',
   },
-  inputFont: {
+  labelAndArrowLight:{
+    color: '#000',
+    fontFamily: 'Bubblegum-sans'
+  },
+  labelAndArrow:{
+    color: '#fff',
+    fontFamily: 'Bubblegum-sans'
+  },
+  inputFontLight: {
     height: RFValue(40),
-    borderColor: 'white',
+    borderColor: '#000',
     borderWidth: RFValue(1),
     borderRadius: RFValue(10),
     paddingLeft: RFValue(10),
-    color: 'white',
+    color: '#000',
+    fontFamily: 'Bubblegum-Sans',
+  },
+  inputFont: {
+    height: RFValue(40),
+    borderColor: '#fff',
+    borderWidth: RFValue(1),
+    borderRadius: RFValue(10),
+    paddingLeft: RFValue(10),
+    color: '#fff',
     fontFamily: 'Bubblegum-Sans',
   },
 });

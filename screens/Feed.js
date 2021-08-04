@@ -12,6 +12,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import * as Font from 'expo-font';
 import PostCard from './PostCard';
 import AppLoading from 'expo-app-loading';
+import firebase from 'firebase';
 import { FlatList } from 'react-native-gesture-handler';
 
 let currentFont = {
@@ -24,6 +25,7 @@ export default class Feed extends React.Component {
     super(props);
     this.state = {
       FontsLoaded: false,
+      light_theme: true
     };
   }
 
@@ -34,8 +36,19 @@ export default class Feed extends React.Component {
     });
   }
 
+  async fetchUser(){
+    let theme;
+    await firebase.database().ref("/user/" + firebase.auth().currentUser.uid).on("value", function(snapshot){
+      theme = snapshot.val().current_theme
+      this.setState({
+        light_theme: theme === "light"
+      })
+    })
+  }
+
   componentDidMount() {
     this._loadFontAsync();
+    this.fetchUser();
   }
 
   renderItem = ({ item: post }) => {
@@ -49,7 +62,7 @@ export default class Feed extends React.Component {
       return <AppLoading />;
     } else {
       return (
-        <View style={styles.container}>
+        <View style={this.state.light_theme ? styles.containerLight : styles.container}>
           <SafeAreaView style={styles.droidSafeArea} />
           <View style={styles.appTitle}>
             <View style={styles.appIcon}>
@@ -77,6 +90,10 @@ export default class Feed extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  containerLight:{
+    flex: 1,
+    backgroundColor: '#fff'
+  },  
   container: {
     flex: 1,
     backgroundColor: '#000',
