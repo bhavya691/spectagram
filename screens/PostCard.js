@@ -14,7 +14,9 @@ export default class PostCard extends React.Component{
     super(props);
     this.state = {
       FontsLoaded: false,
-      light_theme: true
+      light_theme: true,
+      post_id: this.props.post.key,
+      post_data: this.props.post.value
     };
   }
 
@@ -41,9 +43,19 @@ export default class PostCard extends React.Component{
   }
 
   render() {
+    let post = this.state.post_data;
     if (!this.state.FontsLoaded) {
       return <AppLoading />;
     } else {
+      let preview_images = {
+        image_1: require('../assets/image_1.jpg'),
+        image_2: require('../assets/image_2.jpg'),
+        image_3: require('../assets/image_3.jpg'),
+        image_4: require('../assets/image_4.jpg'),
+        image_5: require('../assets/image_5.jpg'),
+        image_6: require('../assets/image_6.jpg'),  
+        image_7: require('../assets/image_7.jpg'),      
+      };
       return (
         <View style={styles.container}>
           <TouchableOpacity
@@ -56,22 +68,22 @@ export default class PostCard extends React.Component{
               <View styles={styles.authorCon}>
                 <View style={styles.authorImgCon}>
                   <Image
-                    source={require('../assets/profile_img.png')}
+                    source={{uri: post.profileImage}}
                     style={styles.profileImg}
                   />
                 </View>
                 <View styles={styles.authorNameCon}>
                   <Text style={this.state.light_theme ? styles.authorNameLight : styles.authorName}>
-                    {this.props.post.author}
+                    {post.author}
                   </Text>
                 </View>
               </View>
               <Image
-                source={require('../assets/post.jpeg')}
+                source={preview_images[posts.previewImage]}
                 style={styles.previewImg}
               />
               <View style={styles.captionCon}>
-                <Text style={this.state.light_theme ? styles.captionTxtLight : styles.captionTxt}>{this.props.post.caption}</Text>
+                <Text style={this.state.light_theme ? styles.captionTxtLight : styles.captionTxt}>{post.caption}</Text>
               </View>
               <View styles={styles.actionCon}>
                 <View style={this.state.light_theme ? styles.likeBtnLight : styles.likeBtn}>

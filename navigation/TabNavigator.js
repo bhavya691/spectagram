@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {RFValue} from 'react-native-responsive-fontsize';
 import firebase from 'firebase';
 import Feed from '../screens/Feed';
 import CreatePost from '../screens/CreatePost';
@@ -11,8 +12,25 @@ export default class TabNavigator extends React.Component{
     constructor(props){
         super(props);
         this.satte = {
-            light_theme: true
+            light_theme: true,
+            isUpdated: false
         }
+    }
+
+    changeUpdated = () => {
+        this.setState({isUpdated: true})
+    }
+
+    removeUpdated = () => {
+        this.setState({isUpdated: false})
+    }
+
+    renderFeed = props => {
+        return <Feed setUpdateToFalse={this.removeUpdated}{...props} />
+    }
+    
+    renderPost = props => {
+        return <CreatePost setUpdateToTrue={this.changeUpdated}{...props} />
     }
 
     async fetchUser(){
@@ -41,14 +59,14 @@ export default class TabNavigator extends React.Component{
                         }else if(route.name === 'createPost'){
                             iconName = focused ? 'create' : 'create-outline'
                         }
-                        return <Ionicons name={iconName} size={30} color={color} style={{width: 30}}/>
+                        return <Ionicons name={iconName} size={RFValue(30)} color={color} style={styles.icons}/>
                     }
                 })}
                     activeColor = {'tomato'}
                     inactiveColor = {'gray'}
             >
-                <Tab.Screen name="Feed" component={Feed} />
-                <Tab.Screen name="CreatePost" component={CreatePost} />
+                <Tab.Screen name="Feed" component={Feed} options={{unmountOnBlur: true}}/>
+                <Tab.Screen name="CreatePost" component={CreatePost} options={{unmountOnBlur: true}}/>
             </Tab.Navigator>
             )
         }
@@ -71,5 +89,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 30,
         position: 'absolute',
         overflow: 'hidden'
+    },
+    icons:{
+        width: RFValue(30),
+        height: RFValue(30)
     }
 })

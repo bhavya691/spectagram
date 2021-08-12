@@ -9,7 +9,7 @@ import {
   Image,
   ScrollView,
   TextInput,
-  Dimensions,
+  Alert
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -17,6 +17,7 @@ import firebase from 'firebase';
 
 import AppLoading from 'expo-app-loading';
 import * as Font from 'expo-font';
+import { Button } from 'react-native-paper';
 
 let customFonts = {
   'Bubblegum-Sans': require('../assets/fonts/BubblegumSans-Regular.ttf'),
@@ -29,7 +30,8 @@ export default class CreatePost extends Component {
       fontsLoaded: false,
       previewImage: 'image_7',
       dropdownHeight: 40,
-      light_theme: true
+      light_theme: true,
+      profileImage: ''
     };
   }
 
@@ -40,12 +42,39 @@ export default class CreatePost extends Component {
 
   async fetchUser(){
     let theme;
+    let profileImage;
     await firebase.database().ref('/user/' + firebase.auth().currentUser.uid).on("vlaue", function (snapshot){
-      theme = snapshot.val().current_theme
+      theme = snapshot.val().current_theme,
+      profileImage = snapshot.val().profile_picture
       this.setState({
-        light_theme: theme === "light"
+        light_theme: theme === "light",
+        profileImage: profileImage
       })
     })
+  }
+
+  async addPost(){
+    if(this.state.caption){
+      let postData = {
+        previewImage: this.state.previewImage,
+        caption: this.state.caption,
+        author: firebase.auth().currentUser.displayName,
+        created_on: new Date(),
+        author_uid: firebase.auth().currentUser.uid,
+        profileImage: this.state.profileImage,
+        likes: 0
+      }
+      await firebase.database().ref('/post/'+Math.random().toString(36).slice(2)).set(postData).then(function (snapshot){})
+      this.props.setUpdateToTrue()
+      this.props.navigation.navigate('Feed')
+    }else{
+      Alert.alert(
+        "Error",
+        "Caption is required",
+        [{text:"OK", onPress: () => console.log('Ok is pressed')}],
+        {cancelable: false}
+      )
+    }
   }
 
   componentDidMount() {
@@ -109,12 +138,12 @@ export default class CreatePost extends Component {
                   }}
                   style={{ backgroundColor: 'transparent' }}
                   itemStyle={{
-                    justifyContent: 'flex-start',
+                    justifyContent: 'flex-start'
                   }}
-                  dropDownStyle={{ backgroundColor: '#2f345d' }}
+                  dropDownStyle={{ backgroundColor: this.state.light_theme ? '#eee' : '#2a2a2a' }}
                   labelStyle={this.state.light_theme ? styles.labelAndArrowLight : styles.labelAndArrow}
                   arrowStyle={this.state.light_theme ? styles.labelAndArrowLight : styles.labelAndArrow}
-                  onChangeItem={(item) =>
+                  onChangeItem={item =>
                     this.setState({
                       previewImage: item.value,
                     })
@@ -128,6 +157,12 @@ export default class CreatePost extends Component {
                 placeholder={'Caption'}
                 placeholderTextColor={this.state.light_theme ? "#000" : "#fff"}
               />
+              <View style={styles.subBut}>
+                <Button onPress={() => {this.addPost()}}
+                  title='Submit'
+                  color = '#841584'
+                />
+              </View>
             </ScrollView>
           </View>
           <View style={{ flex: 0.08 }} />
@@ -215,4 +250,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'Bubblegum-Sans',
   },
+  subBut:{
+    marginTop: RFValue(15),
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });

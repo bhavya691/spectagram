@@ -25,7 +25,8 @@ export default class Feed extends React.Component {
     super(props);
     this.state = {
       FontsLoaded: false,
-      light_theme: true
+      light_theme: true,
+      posts: []
     };
   }
 
@@ -46,9 +47,26 @@ export default class Feed extends React.Component {
     })
   }
 
+  fetchPosts(){
+    firebase.database().ref('/posts/').on("value",(snapshot)=>{
+      let posts = []
+      if(snapshot.val()){
+        Object.keys(snapshot.val()).forEach(function (key){
+          posts.push({key:key,value:snapshot.val()[key]})
+        })
+      }
+      this.setState({posts:posts})
+      this.props.setUpdateToFalse()
+    },
+    function (err){
+      console.log(err)
+    })
+  }
+
   componentDidMount() {
     this._loadFontAsync();
     this.fetchUser();
+    this.fetchPosts();
   }
 
   renderItem = ({ item: post }) => {
