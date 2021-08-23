@@ -11,7 +11,7 @@ const Tab = createMaterialBottomTabNavigator()
 export default class TabNavigator extends React.Component{
     constructor(props){
         super(props);
-        this.satte = {
+        this.state = {
             light_theme: true,
             isUpdated: false
         }
@@ -37,9 +37,10 @@ export default class TabNavigator extends React.Component{
         let theme;
         await firebase.database().ref("/user/" + firebase.auth().currentUser.uid).on("value", function(snapshot){
             theme = snapshot.val().current_theme;
-            this.setState({
-                light_theme: theme === "light"
-            })
+            
+        });
+        this.setState({
+            light_theme: theme === "light" ? true : false
         })
     }
 
@@ -65,8 +66,8 @@ export default class TabNavigator extends React.Component{
                     activeColor = {'tomato'}
                     inactiveColor = {'gray'}
             >
-                <Tab.Screen name="Feed" component={Feed} options={{unmountOnBlur: true}}/>
-                <Tab.Screen name="CreatePost" component={CreatePost} options={{unmountOnBlur: true}}/>
+                <Tab.Screen name="Feed" component={this.renderFeed} options={{unmountOnBlur: true}}/>
+                <Tab.Screen name="CreatePost" component={this.renderPost} options={{unmountOnBlur: true}}/>
             </Tab.Navigator>
             )
         }

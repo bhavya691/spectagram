@@ -49,7 +49,7 @@ export default class Login extends React.Component{
                 )
                 firebase.auth().signInWithCredential(credential).then(function(result){
                     if(result.additionalUserInfo.isNewUser){
-                        firebase.database.ref('/user/' + result.user.uid).set({
+                        firebase.database().ref('/user/' + result.user.uid).set({
                             gmail: result.user.email,
                             profile_picture: result.additionalUserInfo.profile.picture,
                             locale: result.additionalUserInfo.profile.locale,

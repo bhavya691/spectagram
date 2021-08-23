@@ -47,7 +47,7 @@ export default class Profile extends React.Component{
             theme = snapshot.val().current_theme;
             name = `${snapshot.val().first_name} ${snapshot.val().last_name}`;
             image = snapshot.val().profile_picture;
-        })
+        });
         this.setState({
             light_theme: theme === 'light' ? true : false,
             isEnabled: theme === 'light' ? false : true,

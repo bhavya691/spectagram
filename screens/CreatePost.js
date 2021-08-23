@@ -31,7 +31,8 @@ export default class CreatePost extends Component {
       previewImage: 'image_7',
       dropdownHeight: 40,
       light_theme: true,
-      profileImage: ''
+      profileImage: '',
+      caption: ''
     };
   }
 
@@ -46,10 +47,10 @@ export default class CreatePost extends Component {
     await firebase.database().ref('/user/' + firebase.auth().currentUser.uid).on("vlaue", function (snapshot){
       theme = snapshot.val().current_theme,
       profileImage = snapshot.val().profile_picture
-      this.setState({
-        light_theme: theme === "light",
-        profileImage: profileImage
-      })
+    });
+    this.setState({
+      light_theme: theme === "light" ? true : false,
+      profileImage: profileImage
     })
   }
 

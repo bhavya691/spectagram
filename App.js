@@ -21,7 +21,5 @@ const AppSwitchNavigator = createSwitchNavigator({
 const AppContainer = createAppContainer(AppSwitchNavigator)
 
 export default function App(){
-  return(
-    <AppContainer />
-  )
+  return <AppContainer />
 }

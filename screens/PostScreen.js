@@ -14,7 +14,9 @@ export default class PostScreen extends React.Component{
     super(props);
     this.state = {
       FontsLoaded: false,
-      light_theme: true
+      light_theme: true,
+      is_liked: false,
+      likes: this.route.params.post.post.likes
     };
   }
  async _loadFontAsync() {
@@ -28,10 +30,26 @@ export default class PostScreen extends React.Component{
     let theme;
     await firebase.database().ref("/user/" + firebase.auth().currentUser.uid).on("value", function(snapshot){
       theme = snapshot.val().current_theme
-      this.setState({
-        light_theme: theme === "light"
-      })
+    });
+    this.setState({
+      light_theme: theme === "light" ? true : false
     })
+  }
+
+  like_action = () => {
+    if(this.state.is_liked){
+      firebase.database().ref('post').child(this.state.post_id).child('likes').set(firebase.database.ServerValue.increment(-1));
+      this.setState({
+        likes: this.state.likes -= 1,
+        is_liked: false
+      })
+    }else{
+      firebase.database().ref('post').child(this.state.post_id).child('likes').set(firebase.database.ServerValue.increment(1));
+      this.setState({
+        likes: this.state.likes += 1,
+        is_liked: true
+      })
+    }
   }
 
   componentDidMount() {
@@ -71,10 +89,10 @@ export default class PostScreen extends React.Component{
             <Text style={this.state.light_theme ? styles.captionTxtLight : styles.captionTxt}>{this.props.route.params.post.caption}</Text>
           </View>
           <View styles={styles.actionCon}>
-            <View style={this.state.light_theme ? styles.likeBtnLight : styles.likeBtn}>
-              <Ionicons name={"heart"} size={RFValue(30)} color={'#fff'} />
-              <Text style={this.state.light_theme ? styles.likeTxtLight : styles.likeTxt}>12k</Text>
-            </View>
+            <TouchableOpacity onPress={() => this.like_action()} style={this.state.is_liked ? styles.likeBtnLiked : styles.likeBtnDisliked}>
+              <Ionicons name={"heart"} color={this.state.light_theme ? '#000' : '#fff'} size={RFValue(30)} />
+              <Text style={this.state.light_theme ? styles.likeTxtLight : styles.likeTxt}>{this.state.likes}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -200,29 +218,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  likeBtnLight:{
-    width: RFValue(200),
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    backgroundColor: '#EB3948',
-    borderRadius: RFValue(35),
-    alignSelf: "center",
-    marginVertical: RFValue(15),
-    shadowColor: '#000',
+  likeBtnLiked: {
+    width: RFValue(160),
+    height: RFValue(40),
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderColor: '#eb3948',
+    borderRadius: RFValue(30)
   },
-  likeBtn:{
-    width: RFValue(200),
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    backgroundColor: '#EB3948',
-    borderRadius: RFValue(35),
-    alignSelf: "center",
-    marginVertical: RFValue(15),
-    shadowColor: '#fff',
+  likeBtnDisliked: {
+    width: RFValue(160),
+    height: RFValue(40),
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderColor: '#EB3948',
+    borderRadius: RFValue(30),
+    borderWidth: RFValue(2)
   },
   likeTxtLight:{
     fontSize: RFValue(30),

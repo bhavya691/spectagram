@@ -16,7 +16,9 @@ export default class PostCard extends React.Component{
       FontsLoaded: false,
       light_theme: true,
       post_id: this.props.post.key,
-      post_data: this.props.post.value
+      post_data: this.props.post.value,
+      is_liked: false,
+      likes: this.props.post.value.likes
     };
   }
 
@@ -31,10 +33,26 @@ export default class PostCard extends React.Component{
     let theme;
     await firebase.database().ref("/user/"+firebase.auth().currentUser.uid).on("value", function(snapshot){
       theme = snapshot.val().current_theme;
-      this.setState({
-        light_theme: theme === "light"
-      })
+    });
+    this.setState({
+      light_theme: theme === "light" ? true : false
     })
+  }
+
+  like_action = () => {
+    if(this.state.is_liked){
+      firebase.database().ref('post').child(this.state.post_id).child('likes').set(firebase.database.ServerValue.increment(-1));
+      this.setState({
+        likes: this.state.likes -= 1,
+        is_liked: false
+      })
+    }else{
+      firebase.database().ref('post').child(this.state.post_id).child('likes').set(firebase.database.ServerValue.increment(1));
+      this.setState({
+        likes: this.state.likes += 1,
+        is_liked: true
+      })
+    }
   }
 
   componentDidMount() {
@@ -79,17 +97,17 @@ export default class PostCard extends React.Component{
                 </View>
               </View>
               <Image
-                source={preview_images[posts.previewImage]}
+                source={preview_images[post.previewImage]}
                 style={styles.previewImg}
               />
               <View style={styles.captionCon}>
                 <Text style={this.state.light_theme ? styles.captionTxtLight : styles.captionTxt}>{post.caption}</Text>
               </View>
               <View styles={styles.actionCon}>
-                <View style={this.state.light_theme ? styles.likeBtnLight : styles.likeBtn}>
-                  <Ionicons name={'heart'} size={RFValue(30)} color={'#fff'} />
-                  <Text style={this.state.light_theme ? styles.likeTxtLight : styles.likeTxt}>12k</Text>
-                </View>
+                <TouchableOpacity onPress={() => this.like_action()} style={this.state.is_liked ? styles.likeBtnLiked : styles.likeBtnDisliked}>
+                  <Ionicons name={"heart"} color={this.state.light_theme ? '#000' : '#fff'} size={RFValue(30)} />
+                  <Text style={this.state.light_theme ? styles.likeTxtLight : styles.likeTxt}>{this.state.likes}</Text>
+                </TouchableOpacity>
               </View>
             </View>
           </TouchableOpacity>
@@ -173,29 +191,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  likeBtnLight: {
+  likeBtnLiked: {
     width: RFValue(160),
-    height: 40,
+    height: RFValue(40),
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    backgroundColor: '#EB3948',
-    borderRadius: RFValue(35),
-    alignSelf: 'center',
-    marginVertical: RFValue(10),
-    shadowColor: '#000',
+    borderColor: '#eb3948',
+    borderRadius: RFValue(30)
   },
-  likeBtn: {
+  likeBtnDisliked: {
     width: RFValue(160),
-    height: 40,
+    height: RFValue(40),
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
-    backgroundColor: '#EB3948',
-    borderRadius: RFValue(35),
-    alignSelf: 'center',
-    marginVertical: RFValue(10),
-    shadowColor: '#fff',
+    borderColor: '#EB3948',
+    borderRadius: RFValue(30),
+    borderWidth: RFValue(2)
   },
   likeTxtLight: {
     fontSize: RFValue(20),

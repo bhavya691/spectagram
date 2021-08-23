@@ -41,14 +41,14 @@ export default class Feed extends React.Component {
     let theme;
     await firebase.database().ref("/user/" + firebase.auth().currentUser.uid).on("value", function(snapshot){
       theme = snapshot.val().current_theme
-      this.setState({
-        light_theme: theme === "light"
-      })
+    });
+    this.setState({
+      light_theme: theme === "light" ? true : false
     })
   }
 
   fetchPosts(){
-    firebase.database().ref('/posts/').on("value",(snapshot)=>{
+    firebase.database().ref('/post/').on("value",(snapshot)=>{
       let posts = []
       if(snapshot.val()){
         Object.keys(snapshot.val()).forEach(function (key){
@@ -93,14 +93,23 @@ export default class Feed extends React.Component {
               <Text style={styles.appTitlTxt}>Spectagram</Text>
             </View>
           </View>
-
+          {!this.state.posts[0] ? (
+            <View style={styles.noPosts}>
+              <Text style={styles.noPostsTxt}>
+                No Post Available
+              </Text>
+              </View>
+          ):(
           <View style={styles.cardContainer}>
             <FlatList
               keyExtractor={this.keyExtractor}
               data={posts}
               renderItem={this.renderItem}
             />
-          </View>
+            
+            </View>
+            )
+          }
         </View>
       );
     }
@@ -141,6 +150,16 @@ const styles = StyleSheet.create({
   appTitlTxt: {
     color: '#fff',
     fontSize: RFValue(30),
+    fontFamily: 'Bubblegum-Sans'
+  },
+  noPosts:{
+    flex: 0.85,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  noPostsTxt:{
+    color: '#000',
+    fontSize: RFValue(40),
     fontFamily: 'Bubblegum-Sans'
   },
   cardContainer: {
